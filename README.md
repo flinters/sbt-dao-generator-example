@@ -1,0 +1,2 @@
+# sbt-dao-generator-example
+
