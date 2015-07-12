@@ -44,7 +44,7 @@ lazy val generatorSettings = Seq(
 
 lazy val domain = (project in file("domain"))
   .disablePlugins(SbtDaoGeneratorPlugin)
-  .settings(generatorSettings: _*).settings(name := "domain")
+  .settings(name := "domain")
   .settings(baseSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
@@ -53,10 +53,23 @@ lazy val domain = (project in file("domain"))
   ).dependsOn(infra)
 
 lazy val infra = (project in file("infra"))
-  .enablePlugins(SbtDaoGeneratorPlugin).settings(name := "infra")
+  .enablePlugins(SbtDaoGeneratorPlugin)
+  .settings(name := "infra")
   .settings(baseSettings: _*)
+  .settings(
+    tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" },
+    driverClassName in generator := "org.h2.Driver",
+    jdbcUrl in generator := "jdbc:h2:file:./db/development",
+    jdbcUser in generator := "sa",
+    jdbcPassword in generator := "",
+    typeNameMapper in generator := {
+      case "INTEGER" => "Int"
+      case "VARCHAR" => "String"
+      case "BOOLEAN" => "Boolean"
+      case "DATE" | "TIMESTAMP" => "java.sql.Date"
+      case "DECIMAL" => "BigDecimal"
+    })
   .settings(flywaySettings: _*)
-  .settings(generatorSettings: _*)
   .settings(
     flywayUrl := "jdbc:h2:file:./db/development",
     flywayUser := "sa",
