@@ -26,22 +26,6 @@ lazy val baseSettings = Seq(
   }
 )
 
-lazy val generatorSettings = Seq(
-  templateDirectory in generator := (baseDirectory in LocalRootProject).value / "templates",
-  tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" },
-  driverClassName in generator := "org.h2.Driver",
-  jdbcUrl in generator := "jdbc:h2:file:./db/development",
-  jdbcUser in generator := "sa",
-  jdbcPassword in generator := "",
-  typeNameMapper in generator := {
-    case "INTEGER" => "Int"
-    case "VARCHAR" => "String"
-    case "BOOLEAN" => "Boolean"
-    case "DATE" | "TIMESTAMP" => "java.sql.Date"
-    case "DECIMAL" => "BigDecimal"
-  }
-)
-
 lazy val domain = (project in file("domain"))
   .disablePlugins(SbtDaoGeneratorPlugin)
   .settings(name := "domain")
@@ -57,28 +41,34 @@ lazy val infra = (project in file("infra"))
   .settings(name := "infra")
   .settings(baseSettings: _*)
   .settings(
-    tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" },
     driverClassName in generator := "org.h2.Driver",
     jdbcUrl in generator := "jdbc:h2:file:./db/development",
     jdbcUser in generator := "sa",
     jdbcPassword in generator := "",
+    tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" },
     typeNameMapper in generator := {
       case "INTEGER" => "Int"
       case "VARCHAR" => "String"
       case "BOOLEAN" => "Boolean"
       case "DATE" | "TIMESTAMP" => "java.sql.Date"
       case "DECIMAL" => "BigDecimal"
-    })
-  .settings(flywaySettings: _*)
-  .settings(
-    flywayUrl := "jdbc:h2:file:./db/development",
-    flywayUser := "sa",
+    },
     libraryDependencies ++= Seq(
-      "com.h2database" % "h2" % "1.4.+",
       "org.skinny-framework" %% "skinny-orm" % "1.3.19",
       "org.skinny-framework" %% "skinny-test" % "1.3.19",
       "ch.qos.logback" % "logback-classic" % "1.1.+"
     )
+  )
+
+lazy val flyway = (project in file("flyway"))
+  .disablePlugins(SbtDaoGeneratorPlugin)
+  .settings(name := "flyway")
+  .settings(baseSettings: _*)
+  .settings(flywaySettings: _*)
+  .settings(
+    flywayUrl := "jdbc:h2:file:./db/development",
+    flywayUser := "sa",
+    flywayPassword := ""
   )
 
 lazy val root = (project in file(".")).disablePlugins(SbtDaoGeneratorPlugin).settings(baseSettings: _*).settings(
