@@ -5,7 +5,6 @@ import org.sisioh.dddbase.core.lifecycle.sync.{SyncRepository, SyncResultWithEnt
 import org.sisioh.dddbase.core.model.Identifier
 import sbtdaogen.example.infrastructure.{CrudMapper, Record, TableId}
 
-import scala.reflect.runtime.{universe => ru}
 import scala.util.{Failure, Success, Try}
 
 abstract class AbstractRepositoryOnJDBC
@@ -61,7 +60,7 @@ abstract class AbstractRepositoryOnJDBC
   }
 
   override def deleteBy(identifier: ID)(implicit ctx: Ctx): Try[SyncResultWithEntity[This, ID, E]] = {
-    resolveBy(identifier).map{ entity =>
+    resolveBy(identifier).map { entity =>
       mapper.deleteById(convertToId(entity.identifier))
       SyncResultWithEntity(this.asInstanceOf[This], entity)
     }
