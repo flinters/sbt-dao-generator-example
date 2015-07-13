@@ -23,9 +23,6 @@ abstract class AbstractRepositoryOnJDBC
     }
   }
 
-  def getType[A : ru.TypeTag](clazz: Class[A]): ru.Type =
-    ru.typeTag[A].tpe
-
   protected def convertToId(identifier: ID): TID
 
   protected def convertToEntity(r: R): E
