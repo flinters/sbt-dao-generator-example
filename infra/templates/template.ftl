@@ -11,7 +11,7 @@ object ${name}Id {
     implicit val typeBinder: TypeBinder[${name}Id] = TypeBinder.int.map(${name}Id.apply)
 }
 
-case class ${name}(<#list columns as column><#if column.name == "id">${column.name}: ${name}Id<#if column_has_next>,</#if><#elseif column.name?ends_with("Id")>${column.name}: ${column.camelizeName}<#if column_has_next>,</#if><#else><#if column.nullable>${column.name}: Option[${column.typeName}]<#if column_has_next>,</#if><#else>${column.name}: ${column.typeName}<#if column_has_next>,</#if></#if></#if></#list>)
+case class ${name}(<#list primaryKeys as primaryKey>${primaryKey.name}: ${name  }${primaryKey.camelizeName}<#if primaryKey_has_next>,</#if></#list>,<#list columns as column><#if column.name?ends_with("Id")>${column.name}: ${column.camelizeName}<#if column_has_next>,</#if><#else><#if column.nullable>${column.name}: Option[${column.typeName}]<#if column_has_next>,</#if><#else>${column.name}: ${column.typeName}<#if column_has_next>,</#if></#if></#if></#list>)
     extends Record
 
 object ${name} extends CrudMapper[${name}Id, ${name}] with ${name}Support {

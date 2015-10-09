@@ -1,3 +1,4 @@
+import org.seasar.util.lang.StringUtil
 
 lazy val baseSettings = Seq(
   version := "1.0",
@@ -27,7 +28,6 @@ lazy val baseSettings = Seq(
 )
 
 lazy val domain = (project in file("domain"))
-  .disablePlugins(SbtDaoGeneratorPlugin)
   .settings(name := "domain")
   .settings(baseSettings: _*)
   .settings(
@@ -53,15 +53,29 @@ lazy val infra = (project in file("infra"))
       case "DATE" | "TIMESTAMP" => "java.sql.Date"
       case "DECIMAL" => "BigDecimal"
     },
+    classNameMapper in generator := { tableName =>
+      Seq(StringUtil.camelize(tableName), StringUtil.camelize(tableName) + "Spec")
+    },
+    templateNameMapper in generator := {
+      case modelName if modelName.endsWith("Spec") => "template_spec.ftl"
+      case _ => "template.ftl"
+    },
+    outputDirectoryMapper in generator := {
+      (o: File, m: String) => m match {
+        case s if s.endsWith("Spec") => (sourceManaged in Test).value
+        case s => (sourceManaged in Compile).value
+      }
+    },
     libraryDependencies ++= Seq(
       "org.skinny-framework" %% "skinny-orm" % "1.3.19",
       "org.skinny-framework" %% "skinny-test" % "1.3.19",
-      "ch.qos.logback" % "logback-classic" % "1.1.+"
-    )
+      "ch.qos.logback" % "logback-classic" % "1.1.+",
+      "org.scalatest" %% "scalatest" % "2.2.4"
+    ),
+    sourceGenerators in Compile <+= generateAll in generator
   )
 
 lazy val flyway = (project in file("flyway"))
-  .disablePlugins(SbtDaoGeneratorPlugin)
   .settings(name := "flyway")
   .settings(baseSettings: _*)
   .settings(flywaySettings: _*)
@@ -71,7 +85,8 @@ lazy val flyway = (project in file("flyway"))
     flywayPassword := ""
   )
 
-lazy val root = (project in file(".")).disablePlugins(SbtDaoGeneratorPlugin).settings(baseSettings: _*).settings(
+lazy val root = (project in file("."))
+  .settings(baseSettings: _*).settings(
   name := "sbt-dao-generator-example"
 ).aggregate(domain, infra)
 
