@@ -14,4 +14,4 @@ libraryDependencies ++= Seq(
 
 addSbtPlugin("org.flywaydb" % "flyway-sbt" % "3.2.1")
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.2")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.3")
