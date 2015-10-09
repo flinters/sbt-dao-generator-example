@@ -57,12 +57,12 @@ lazy val infra = (project in file("infra"))
       Seq(StringUtil.camelize(tableName), StringUtil.camelize(tableName) + "Spec")
     },
     templateNameMapper in generator := {
-      case modelName if modelName.endsWith("Spec") => "template_spec.ftl"
+      case className if className.endsWith("Spec") => "template_spec.ftl"
       case _ => "template.ftl"
     },
     outputDirectoryMapper in generator := {
-      case (modelName: String) if modelName.endsWith("Spec") => (sourceManaged in Test).value
-      case (modelName: String) => (sourceManaged in Compile).value
+      case (className: String) if className.endsWith("Spec") => (sourceManaged in Test).value
+      case (className: String) => (sourceManaged in Compile).value
     },
     libraryDependencies ++= Seq(
       "org.skinny-framework" %% "skinny-orm" % "1.3.19",
